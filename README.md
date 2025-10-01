@@ -69,19 +69,19 @@ python script.py
 python script.py --load mini_gpt_char.pt
 
 # Generate with custom prompt
-python script.py --load mini_gpt_char.pt --prompt "kissat syö"
+python script.py --load mini_gpt_char.pt --prompt "cat eats"
 ```
 
 ### Advanced Generation Options
 ```bash
 # Control generation length and temperature
-python script.py --load mini_gpt_char.pt --prompt "koira" --max-tokens 200 --temperature 0.8
+python script.py --load mini_gpt_char.pt --prompt "dog" --max-tokens 200 --temperature 0.8
 
 # Stop generation at specific characters
-python script.py --load mini_gpt_char.pt --prompt "lintu" --stop-tokens ".," --max-tokens 100
+python script.py --load mini_gpt_char.pt --prompt "bird" --stop-tokens ".," --max-tokens 100
 
 # Lower temperature for more focused generation
-python script.py --load mini_gpt_char.pt --prompt "kissa" --temperature 0.3
+python script.py --load mini_gpt_char.pt --prompt "cat" --temperature 0.3
 ```
 
 ### Interactive Testing
@@ -125,7 +125,7 @@ class Config:
 | Argument | Description | Example |
 |----------|-------------|---------|
 | `--load` | Load existing model | `--load mini_gpt_char.pt` |
-| `--prompt` | Text prompt for generation | `--prompt "kissat"` |
+| `--prompt` | Text prompt for generation | `--prompt "cat"` |
 | `--max-tokens` | Maximum tokens to generate | `--max-tokens 200` |
 | `--temperature` | Generation temperature | `--temperature 1.2` |
 | `--stop-tokens` | Stop generation at these chars | `--stop-tokens ".,!"` |
@@ -152,22 +152,29 @@ class Config:
 
 ## Example Corpus
 
-Here's an example of good training data:
+Here's an example of good training data structure:
 
 ```
-kissat syö kaloja ja koirat syö luita.
-koirat haukkuu ja kissat naukuu.
-haukat jahtaa hiiriä
-kissat jahtaa hiiriä
-koira jahtaa rosvoja
-kalat syövät toisiaan
-kissat jahtaa lintuja
-lintu osaa lentää
-kissa ei osaa lentää
-koira ei osaa lentää
-lintu syö siemeniä
-koirat jahtaa jalkapalloja
-koira ja kissa ovat eri rotuja
+Cats are animals that love to sleep and play with yarn.
+Dogs are loyal companions that enjoy fetching balls and going for walks.
+Birds can fly high in the sky and build nests in trees.
+Fish live in water and swim gracefully through the ocean.
+Horses are strong animals that people ride for transportation.
+Cows give us milk and graze peacefully in green meadows.
+Rabbits hop quickly and have long ears for listening.
+Bears are large animals that hibernate during winter months.
+Elephants are the biggest land animals with long trunks for eating.
+Lions are known as the king of the jungle with their mighty roar.
+Tigers have beautiful striped fur and are excellent hunters.
+Monkeys swing from tree to tree using their long arms.
+Dolphins are intelligent sea creatures that love to jump and play.
+Whales are the largest animals on Earth living in the deep ocean.
+Butterflies have colorful wings and transform from caterpillars.
+Bees make honey by collecting nectar from flowers and plants.
+Frogs can jump very high and live both on land and in water.
+Turtles carry their homes on their backs and live very long lives.
+Penguins cannot fly but are excellent swimmers in cold waters.
+Owls can see in the dark and hunt mice during the night.
 ```
 
 ## Troubleshooting
