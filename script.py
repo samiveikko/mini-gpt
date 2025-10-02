@@ -3,7 +3,7 @@
 # Trains on own dataset (corpus.txt) and generates text.
 # Can generate text with stop tokens.
 
-import math, os, io, time, random, argparse
+import math, os, io, random, argparse
 from dataclasses import dataclass
 from typing import Tuple
 
@@ -30,8 +30,6 @@ class Config:
     eval_iters: int = 100
     device: str = "cuda" if torch.cuda.is_available() else "cpu"
     seed: int = 42
-    compile: bool = False             # PyTorch 2.0+: try True if you get speedup
-    generate_tokens: int = 100        # length of generated text
     ckpt_path: str = "mini_gpt_char.pt"
 
 cfg = Config()
@@ -39,10 +37,12 @@ cfg = Config()
 # ----------------------------
 # Helper functions
 # ----------------------------
+
 def set_seed(seed: int):
     random.seed(seed)
     torch.manual_seed(seed)
-    torch.cuda.manual_seed_all(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(seed)
 
 def load_text(path: str) -> str:
     if not os.path.exists(path):
@@ -69,11 +69,13 @@ def load_checkpoint(checkpoint_path: str, device: str):
     vocab = checkpoint['vocab']
     
     # Create tokenizer from loaded vocabulary
-    tokenizer = CharTokenizer("")  # Empty string, we'll set vocab manually
-    tokenizer.chars = list(vocab['stoi'].keys())
+    tokenizer = CharTokenizer("")
+    itos = vocab['itos']
+    stoi = vocab['stoi']
+    tokenizer.itos = itos
+    tokenizer.stoi = stoi
+    tokenizer.chars = [itos[i] for i in range(len(itos))]  # stable order by index
     tokenizer.vocab_size = len(tokenizer.chars)
-    tokenizer.stoi = vocab['stoi']
-    tokenizer.itos = vocab['itos']
     
     # Create model with loaded configuration
     model = MiniGPT(
@@ -226,7 +228,7 @@ class MiniGPT(nn.Module):
         for _ in range(max_new_tokens):
             idx_cond = idx[:, -self.block_size:]  # restrict to context
             logits, _ = self(idx_cond)
-            logits = logits[:, -1, :] / temperature  # temperature scaling
+            logits = logits[:, -1, :] / temperature  # temperature: <1 makes choices peakier (more deterministic)
             probs = F.softmax(logits, dim=-1)
             next_id = torch.multinomial(probs, num_samples=1)
             idx = torch.cat([idx, next_id], dim=1)
@@ -297,7 +299,6 @@ def main():
     parser.add_argument('--max-tokens', type=int, default=100, help='Maximum tokens to generate')
     parser.add_argument('--temperature', type=float, default=1.0, help='Temperature for generation (higher = more random)')
     parser.add_argument('--stop-tokens', type=str, help='Stop generation when these characters appear (e.g., ".,!")')
-    parser.add_argument('--train', action='store_true', help='Force training mode even if checkpoint exists')
     args = parser.parse_args()
 
     set_seed(cfg.seed)
@@ -355,10 +356,7 @@ def main():
         dropout=cfg.dropout,
     ).to(cfg.device)
 
-    if cfg.compile and hasattr(torch, "compile"):
-        model = torch.compile(model)  # PyTorch 2.0+: voi nopeuttaa
-
-    optimizer = torch.optim.AdamW(model.parameters(), lr=cfg.lr, betas=(0.9, 0.95), weight_decay=0.01)
+    optimizer = torch.optim.AdamW(model.parameters(), lr=cfg.lr)
 
     # Training
     pbar = tqdm(range(1, cfg.max_iters + 1), desc="Training")
@@ -368,7 +366,6 @@ def main():
 
         optimizer.zero_grad(set_to_none=True)
         loss.backward()
-        torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
         optimizer.step()
 
         if it % cfg.eval_interval == 0 or it == 1:

@@ -84,20 +84,6 @@ python script.py --load mini_gpt_char.pt --prompt "bird" --stop-tokens ".," --ma
 python script.py --load mini_gpt_char.pt --prompt "cat" --temperature 0.3
 ```
 
-### Interactive Testing
-```bash
-# Test model creativity with various prompts
-python script.py --load mini_gpt_char.pt --test-creativity
-
-# Interactive mode for testing different prompts
-python script.py --load mini_gpt_char.pt --interactive
-
-# Calculate perplexity for specific text
-python script.py --load mini_gpt_char.pt --perplexity "your test text here"
-```
-
-Note: The current script.py implementation includes `--test-creativity`, `--interactive`, and `--perplexity` features, but these may not be fully implemented in the current version.
-
 ## Configuration
 
 You can modify the model configuration in `script.py`:
