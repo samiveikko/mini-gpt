@@ -49,7 +49,7 @@ This will:
 - Load your corpus
 - Train the model for 3000 iterations
 - Save the model as `mini_gpt_char.pt`
-- Generate sample text
+- Generate sample text with default prompt "machine learning"
 
 ### 3. Generate Text
 
@@ -65,7 +65,7 @@ python script.py --load mini_gpt_char.pt --prompt "Your prompt here"
 # Train a new model
 python script.py
 
-# Generate text with default prompt
+# Generate text with default prompt "machine learning"
 python script.py --load mini_gpt_char.pt
 
 # Generate with custom prompt
@@ -96,6 +96,8 @@ python script.py --load mini_gpt_char.pt --interactive
 python script.py --load mini_gpt_char.pt --perplexity "your test text here"
 ```
 
+Note: The current script.py implementation includes `--test-creativity`, `--interactive`, and `--perplexity` features, but these may not be fully implemented in the current version.
+
 ## Configuration
 
 You can modify the model configuration in `script.py`:
@@ -104,7 +106,7 @@ You can modify the model configuration in `script.py`:
 @dataclass
 class Config:
     data_path: str = "corpus.txt"     # Your training data
-    block_size: int = 8               # Context length (tokens)
+    block_size: int = 64              # Context length (tokens)
     batch_size: int = 32              # Training batch size
     n_layers: int = 4                 # Number of transformer layers
     n_heads: int = 4                  # Number of attention heads
@@ -116,7 +118,6 @@ class Config:
     eval_iters: int = 100             # Evaluation iterations
     device: str = "cuda" if torch.cuda.is_available() else "cpu"
     seed: int = 42                    # Random seed
-    generate_tokens: int = 100        # Default generation length
     ckpt_path: str = "mini_gpt_char.pt"
 ```
 
@@ -125,13 +126,10 @@ class Config:
 | Argument | Description | Example |
 |----------|-------------|---------|
 | `--load` | Load existing model | `--load mini_gpt_char.pt` |
-| `--prompt` | Text prompt for generation | `--prompt "cat"` |
-| `--max-tokens` | Maximum tokens to generate | `--max-tokens 200` |
-| `--temperature` | Generation temperature | `--temperature 1.2` |
+| `--prompt` | Text prompt for generation (default: "machine learning") | `--prompt "cat"` |
+| `--max-tokens` | Maximum tokens to generate (default: 100) | `--max-tokens 200` |
+| `--temperature` | Generation temperature (default: 1.0) | `--temperature 1.2` |
 | `--stop-tokens` | Stop generation at these chars | `--stop-tokens ".,!"` |
-| `--interactive` | Start interactive mode | `--interactive` |
-| `--test-creativity` | Run creativity tests | `--test-creativity` |
-| `--perplexity` | Calculate perplexity | `--perplexity "text"` |
 
 ## Tips for Better Results
 
